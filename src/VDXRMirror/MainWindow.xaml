@@ -1,0 +1,57 @@
+<Window x:Class="VDXRMirror.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="VDXR Mirror" 
+        Height="720" 
+        Width="1280"
+        WindowState="Normal"
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="CanResize"
+        Background="Black">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Menu Bar -->
+        <Menu Grid.Row="0" Background="#333" Foreground="White">
+            <MenuItem Header="Resolution">
+                <MenuItem Header="720p (1280x720)" Click="Resolution_720p_Click" IsCheckable="True" Name="Menu_720p"/>
+                <MenuItem Header="1080p (1920x1080)" Click="Resolution_1080p_Click" IsCheckable="True" Name="Menu_1080p" IsChecked="True"/>
+            </MenuItem>
+            <MenuItem Header="Eye Selection">
+                <MenuItem Header="Left Eye" Click="EyeSelection_Left_Click" IsCheckable="True" Name="Menu_LeftEye"/>
+                <MenuItem Header="Right Eye" Click="EyeSelection_Right_Click" IsCheckable="True" Name="Menu_RightEye" IsChecked="True"/>
+                <MenuItem Header="Both Eyes" Click="EyeSelection_Both_Click" IsCheckable="True" Name="Menu_BothEyes"/>
+            </MenuItem>
+            <MenuItem Header="Smoothing">
+                <MenuItem Header="Enable Smoothing" Click="Smoothing_Toggle_Click" IsCheckable="True" Name="Menu_SmoothingEnabled" IsChecked="True"/>
+                <Separator/>
+                <MenuItem Header="Smoothing Strength">
+                    <MenuItem Header="Light (25%)" Click="SmoothingStrength_25_Click" IsCheckable="True" Name="Menu_Smooth25"/>
+                    <MenuItem Header="Medium (50%)" Click="SmoothingStrength_50_Click" IsCheckable="True" Name="Menu_Smooth50" IsChecked="True"/>
+                    <MenuItem Header="Strong (75%)" Click="SmoothingStrength_75_Click" IsCheckable="True" Name="Menu_Smooth75"/>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="Hotkeys" Click="Help_Hotkeys_Click"/>
+                <MenuItem Header="About" Click="Help_About_Click"/>
+            </MenuItem>
+        </Menu>
+        
+        <!-- VR Display Area -->
+        <Border Grid.Row="1" Background="Black">
+            <Grid Name="DisplayContainer">
+                <!-- This will contain our DirectX render surface -->
+                <TextBlock Text="VDXR Mirror - Waiting for VR connection..." 
+                          Foreground="Gray" 
+                          FontSize="24" 
+                          HorizontalAlignment="Center" 
+                          VerticalAlignment="Center"
+                          Name="StatusText"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

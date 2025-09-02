@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" 
+           Name="VDXR Mirror" 
+           Language="1033" 
+           Version="1.0.0.0" 
+           Manufacturer="VDXR Mirror Project" 
+           UpgradeCode="12345678-1234-5678-9ABC-DEF123456789">
+    
+    <Package InstallerVersion="200" 
+             Compressed="yes" 
+             InstallScope="perMachine"
+             Description="VR mirror application for Quest 3 with Virtual Desktop"
+             Comments="Optimized for streaming via OBS with temporal smoothing" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- Include .NET 8.0 Windows Desktop Runtime -->
+    <PropertyRef Id="NETFRAMEWORK48" />
+    <Condition Message="This application requires .NET 8.0 Windows Desktop Runtime. Please install it first.">
+      <![CDATA[Installed OR NETFRAMEWORK48]]>
+    </Condition>
+
+    <Feature Id="ProductFeature" Title="VDXR Mirror Application" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="ProgramMenuComponents" />
+    </Feature>
+    
+    <!-- Custom actions for .NET runtime detection and download -->
+    <Binary Id="CustomActions" SourceFile="$(var.SolutionDir)installer\CustomActions.CA.dll" />
+    
+    <CustomAction Id="CheckDotNetRuntime" 
+                  BinaryKey="CustomActions" 
+                  DllEntry="CheckDotNetRuntime" 
+                  Execute="immediate" />
+                  
+    <InstallExecuteSequence>
+      <Custom Action="CheckDotNetRuntime" Before="LaunchConditions" />
+    </InstallExecuteSequence>
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="VDXR Mirror" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="VDXR Mirror"/>
+      </Directory>
+      <Directory Id="DesktopFolder" />
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <!-- Main application files -->
+      <Component Id="MainExecutable" Guid="*">
+        <File Id="VDXRMirrorEXE" 
+              Source="$(var.VDXRMirror.TargetPath)" 
+              KeyPath="yes" 
+              Checksum="yes">
+          <Shortcut Id="DesktopShortcut"
+                    Directory="DesktopFolder"
+                    Name="VDXR Mirror"
+                    Description="VR mirror application for Quest 3 with Virtual Desktop"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Icon="ApplicationIcon.ico"
+                    IconIndex="0" />
+        </File>
+      </Component>
+      
+      <!-- Configuration files -->
+      <Component Id="AppConfig" Guid="*">
+        <File Id="VDXRMirrorConfig" 
+              Source="$(var.VDXRMirror.TargetDir)VDXRMirror.dll.config" 
+              KeyPath="yes" />
+      </Component>
+      
+      <!-- Dependencies will be automatically included by publish -->
+      <Component Id="Dependencies" Guid="*">
+        <File Id="SharpDXDll" 
+              Source="$(var.VDXRMirror.TargetDir)SharpDX.dll" 
+              KeyPath="yes" />
+        <File Id="SharpDXD3D11Dll" 
+              Source="$(var.VDXRMirror.TargetDir)SharpDX.Direct3D11.dll" />
+        <File Id="SharpDXDXGIDll" 
+              Source="$(var.VDXRMirror.TargetDir)SharpDX.DXGI.dll" />
+        <File Id="OpenXRLoaderDll" 
+              Source="$(var.VDXRMirror.TargetDir)openxr_loader.dll" />
+        <File Id="SystemTextJsonDll" 
+              Source="$(var.VDXRMirror.TargetDir)System.Text.Json.dll" />
+      </Component>
+    </ComponentGroup>
+    
+    <ComponentGroup Id="ProgramMenuComponents" Directory="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="*">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="VDXR Mirror"
+                  Description="VR mirror application for Quest 3 with Virtual Desktop"
+                  Target="[#VDXRMirrorEXE]"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="ApplicationIcon.ico" />
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" 
+                       Key="Software\VDXRMirror" 
+                       Name="installed" 
+                       Type="integer" 
+                       Value="1" 
+                       KeyPath="yes"/>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Application icon -->
+  <Fragment>
+    <Icon Id="ApplicationIcon.ico" SourceFile="$(var.SolutionDir)installer\icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="ApplicationIcon.ico" />
+  </Fragment>
+  
+  <!-- Add/Remove Programs information -->
+  <Fragment>
+    <Property Id="ARPHELPLINK" Value="https://github.com/yourusername/VDXR_Mirror" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/yourusername/VDXR_Mirror" />
+    <Property Id="ARPNOMODIFY" Value="1" />
+  </Fragment>
+</Wix>
