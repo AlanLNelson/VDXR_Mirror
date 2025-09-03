@@ -2,61 +2,78 @@
 
 A VR mirror application for Quest 3 with Virtual Desktop, designed for smooth streaming via OBS.
 
-## Features
+## 🚀 Quick Start
 
-- **Clean Display**: Borderless window showing only VR content (perfect for OBS capture)
-- **Multiple Resolutions**: 720p and 1080p support (1080p default)
-- **Eye Selection**: Left eye, Right eye, or Both eyes (stereoscopic)
-- **Temporal Smoothing**: Reduces jitter for better streaming experience
-- **Menu-Driven Interface**: All controls in dropdown menus (no on-screen buttons)
-- **Persistent Settings**: Remembers your preferences
-- **Hotkey Support**: Quick access to common functions
-- **Single-File Installer**: MSI package with all dependencies
+### Download & Run (Easiest)
+1. **Download** the latest ZIP from [Releases](../../releases)
+2. **Extract** anywhere on your PC
+3. **Run** `VDXRMirror.exe` - that's it!
 
-## Target Use Case
+### Build from Source
+1. **Clone** this repository
+2. **Run** `installer\build-simple.bat` on Windows
+3. **Zip** the `dist` folder for distribution
 
-Optimized for flight simulation streaming where natural head movement is desired, but output smoothing improves viewer experience.
+## ✨ Features
 
-## Technical Architecture
+- **🎯 Zero-Setup Installation** - Download, extract, run
+- **🖥️ Clean Stream Output** - Perfect for OBS capture
+- **📱 Quest 3 Optimized** - Works with Virtual Desktop VDXR
+- **🎮 Multiple Options** - 720p/1080p, eye selection, smoothing
+- **⌨️ Hotkeys** - Ctrl+1/2 (resolution), Ctrl+L/R/B (eyes), Ctrl+S (smoothing)
+- **💾 Persistent Settings** - Remembers your preferences
+- **🎨 Temporal Smoothing** - Reduces jitter for better streaming
 
-### Core Components
-- **VRCaptureService**: Captures frames from VDXR runtime
-- **TemporalSmoother**: Applies lightweight frame blending to reduce jitter
-- **RenderSurface**: DirectX rendering surface for low-latency display
-- **SettingsManager**: Handles configuration persistence
-- **MenuSystem**: Clean dropdown-based interface
+## 📋 Requirements
 
-### Technology Stack
-- **Framework**: C# WPF for native Windows performance
-- **VR Integration**: VDXR runtime via Virtual Desktop
-- **Smoothing**: Simple temporal frame blending (not complex motion interpolation)
-- **Rendering**: DirectX for real-time display
-- **Installation**: MSI package with .NET runtime included
+- **Windows 10/11** PC
+- **Quest 3** VR headset  
+- **Virtual Desktop** with VDXR runtime enabled
 
-### Smoothing Approach
-Uses lightweight temporal smoothing - blending current frame with 1-2 previous frames to reduce high-frequency jitter while preserving natural head movement for flight simulation.
+## 🎯 Target Use Case
 
-## Development Plan
+Optimized for **flight simulation streaming** where natural head movement is desired, but output smoothing improves viewer experience.
 
-1. **Project Setup**: Create C# WPF application structure
-2. **VDXR Integration**: Implement frame capture from Virtual Desktop VDXR runtime  
-3. **Temporal Smoothing**: Build simple frame blending engine
-4. **UI System**: Create clean menu-driven interface
-5. **Settings & Hotkeys**: Add configuration persistence and keyboard shortcuts
-6. **Installer**: Package as single MSI with all dependencies
+## 🏗️ Technical Details
 
-## Usage
+- **Framework**: C# WPF (.NET 8.0)
+- **VR Integration**: OpenXR via VDXR runtime
+- **Rendering**: WriteableBitmap for maximum compatibility
+- **Smoothing**: Temporal frame blending (25%, 50%, 75% strength)
+- **Dependencies**: Self-contained with automatic OpenXR loader inclusion
 
-1. Install from single MSI file
-2. Launch Virtual Desktop and connect Quest 3
-3. Set Virtual Desktop to use VDXR runtime
-4. Launch VDXR Mirror application
-5. Configure resolution/eye settings via menu
-6. Capture window in OBS for streaming
+## 🔄 Automatic Builds
 
-## Requirements
+Every commit triggers an automatic build on GitHub Actions:
+- ✅ **Compiles** the application with all dependencies
+- ✅ **Creates** self-contained Windows distribution  
+- ✅ **Generates** ZIP file ready for download
+- ✅ **Uploads** as artifact (available for 30 days)
+- ✅ **Creates release** when you tag a version
 
-- Windows 10/11
-- Quest 3 VR headset
-- Virtual Desktop (with VDXR runtime enabled)
-- .NET 8.0 Runtime (included in installer)
+### Manual Build Trigger
+Visit the [Actions tab](../../actions) and click **"Run workflow"** to trigger a build manually.
+
+## 📦 Distribution Options
+
+### Option 1: GitHub Actions (Automated) ⭐
+- Push code → automatic build → download ZIP from Actions/Releases
+- No local setup required
+
+### Option 2: Local Build  
+- Run `installer\build-simple.bat` on Windows
+- Creates `dist` folder to zip manually
+
+## 🐛 Troubleshooting
+
+- **"VDXR runtime not available"** → Start Virtual Desktop with VDXR enabled
+- **Black screen** → Check Virtual Desktop connection and VDXR settings
+- **No VR connected** → Shows animated test pattern (normal for development)
+
+## 📄 License
+
+This project is open source and available under standard terms.
+
+---
+
+**🎮 Ready to stream your VR gameplay with smooth, professional output!**

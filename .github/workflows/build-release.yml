@@ -1,0 +1,116 @@
+name: Build and Release VDXR Mirror
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build application
+      run: dotnet build -c Release --no-restore
+      
+    - name: Publish self-contained
+      run: |
+        dotnet publish src/VDXRMirror -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o dist/VDXRMirror
+        
+    - name: Create distribution files
+      shell: powershell
+      run: |
+        # Create README for users
+        @"
+        VDXR Mirror - VR Mirror Application
+        
+        INSTALLATION:
+        1. Extract this folder to any location (e.g., Program Files)
+        2. Run VDXRMirror.exe
+        
+        REQUIREMENTS:
+        - Windows 10/11
+        - Quest 3 VR headset  
+        - Virtual Desktop with VDXR runtime enabled
+        
+        The application includes all required dependencies.
+        No additional downloads needed!
+        
+        For support: https://github.com/${{ github.repository }}
+        "@ | Out-File -FilePath "dist/README.txt" -Encoding UTF8
+        
+        # Create desktop shortcut helper
+        @"
+        @echo off
+        echo Creating desktop shortcut...
+        powershell `"`$ws = New-Object -ComObject WScript.Shell; `$s = `$ws.CreateShortcut([Environment]::GetFolderPath('Desktop') + '\VDXR Mirror.lnk'); `$s.TargetPath = '%~dp0VDXRMirror\VDXRMirror.exe'; `$s.WorkingDirectory = '%~dp0VDXRMirror'; `$s.Description = 'VR mirror application for Quest 3 with Virtual Desktop'; `$s.Save()`"
+        echo Desktop shortcut created!
+        pause
+        "@ | Out-File -FilePath "dist/Create Desktop Shortcut.bat" -Encoding ASCII
+        
+    - name: Create ZIP archive
+      shell: powershell
+      run: |
+        # Create ZIP file with timestamp
+        $version = if ($env:GITHUB_REF -match 'refs/tags/(.*)') { $matches[1] } else { "dev-$(Get-Date -Format 'yyyyMMdd-HHmm')" }
+        $zipName = "VDXR-Mirror-$version.zip"
+        Compress-Archive -Path "dist/*" -DestinationPath $zipName
+        echo "ZIP_NAME=$zipName" >> $env:GITHUB_ENV
+        echo "Created: $zipName"
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: vdxr-mirror-portable
+        path: "*.zip"
+        retention-days: 30
+        
+    - name: Create Release (on tag)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: "*.zip"
+        name: "VDXR Mirror ${{ github.ref_name }}"
+        body: |
+          ## VDXR Mirror - VR Mirroring for Quest 3
+          
+          **Download and extract the ZIP file, then run VDXRMirror.exe**
+          
+          ### Features:
+          - ✅ Zero-setup installation - just extract and run
+          - ✅ Quest 3 + Virtual Desktop VDXR support  
+          - ✅ Temporal smoothing for stream-friendly output
+          - ✅ Multiple resolutions (720p/1080p)
+          - ✅ Eye selection (Left/Right/Both)
+          - ✅ Hotkey support and persistent settings
+          
+          ### Requirements:
+          - Windows 10/11
+          - Quest 3 VR headset
+          - Virtual Desktop with VDXR runtime enabled
+          
+          ### Installation:
+          1. Download the ZIP file below
+          2. Extract to any folder
+          3. Run `VDXRMirror.exe`
+          4. Optionally run `Create Desktop Shortcut.bat`
+          
+          The application is completely self-contained - no additional downloads needed!
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
